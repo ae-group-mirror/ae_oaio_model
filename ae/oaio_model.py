@@ -7,10 +7,10 @@ import datetime
 from dataclasses import dataclass, field
 from typing import Any, Mapping, Optional, Sequence
 
-from ae.base import NOW_STR_FORMAT, now_str, uri2filename  # type: ignore
+from ae.base import NOW_STR_FORMAT, now_str, uri2filename                                           # type: ignore
 
 
-__version__ = '0.3.1'
+__version__ = '0.3.2'
 
 
 CREATE_WRITE_ACCESS = 'c'           #: create, delete and update rights, see write_access field in Pubz and Userz
@@ -38,7 +38,7 @@ HTTP_HEADER_USR_ID = 'X-OAIO-user'  #: user name
 HTTP_HEADER_APP_ID = 'X-OAIO-app'   #: app id
 HTTP_HEADER_DVC_ID = 'X-OAIO-dvc'   #: device id
 
-MAX_STAMP_DIFF = 3.0                #: maximum accepted UTC time difference in seconds between client and server
+MAX_STAMP_DIFF = 69.0               #: maximum accepted UTC time difference in seconds between client and server
 STAMP_FORMAT = NOW_STR_FORMAT.format(sep="")     #: stamp format string
 now_stamp = now_str                 #: function alias used to create a new oaio stamp
 
