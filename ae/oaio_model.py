@@ -10,7 +10,7 @@ from typing import Any, Mapping, Optional, Sequence
 from ae.base import NOW_STR_FORMAT, now_str, uri2filename                                           # type: ignore
 
 
-__version__ = '0.3.2'
+__version__ = '0.3.3'
 
 
 CREATE_WRITE_ACCESS = 'c'           #: create, delete and update rights, see write_access field in Pubz and Userz
@@ -48,8 +48,8 @@ OaioDictType = dict[str, Any]       #: type of oai object converted into a dicti
 
 OaioIdType = str                    #: oai object id
 OaioAppIdType = str                 #: app id
-OaioCdnIdType = str                 #: CDN id
-OaioCdnWriteAccessType = str        #: write access rights (:attr:`oaio_server.oapi.models.Pubz.write_access`)
+OaioCshIdType = str                 #: cloud storage host id
+OaioCshWriteAccessType = str        #: write access rights (:attr:`oaio_server.oapi.models.Pubz.write_access`)
 OaioDeviceIdType = str              #: device id
 OaioRootPathType = str              #: default root path (containing :data:`~ae.paths.PATH_PLACEHOLDERS`)
 OaioStampType = str                 #: oaio stamp
@@ -70,8 +70,8 @@ class OaiObject:
     client_values: OaioValuesType = field(default_factory=dict)
     server_values: OaioValuesType = field(default_factory=dict)
 
-    cdn_id: Optional[OaioCdnIdType] = None
-    cdn_write_access: OaioCdnWriteAccessType = ''
+    csh_id: Optional[OaioCshIdType] = None
+    csh_write_access: OaioCshWriteAccessType = ''
 
     # optional fields used in synchronization to store updated server values from other user/device/app
     username: OaioUserIdType = ''
