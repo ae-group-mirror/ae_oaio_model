@@ -3,10 +3,27 @@
 """
 import datetime
 
-from ae.oaio_model import NAME_VALUES_KEY, OaiObject, ROOT_VALUES_KEY, STAMP_FORMAT, now_stamp, object_id, stamp_diff
+from ae.oaio_model import (                             # type: ignore
+    HTTP_HEADER_APP_ID, HTTP_HEADER_DVC_ID, HTTP_HEADER_USR_ID, NAME_VALUES_KEY, ROOT_VALUES_KEY, STAMP_FORMAT,
+    OaiObject, extra_headers, now_stamp, object_dict, object_id, stamp_diff)
 
 
 class TestHelpers:
+    def test_extra_headers(self):
+        hdr = extra_headers('u_nam', 'device_i', 'id_of_app')
+        assert HTTP_HEADER_USR_ID in hdr
+        assert hdr[HTTP_HEADER_USR_ID] == 'u_nam'
+        assert HTTP_HEADER_DVC_ID in hdr
+        assert hdr[HTTP_HEADER_DVC_ID] == 'device_i'
+        assert HTTP_HEADER_APP_ID in hdr
+        assert hdr[HTTP_HEADER_APP_ID] == 'id_of_app'
+
+    def test_object_dict(self):
+        oai_obj = OaiObject("my_id")
+        oaio_dict = object_dict(oai_obj)
+        assert 'oaio_id' in oaio_dict
+        assert oaio_dict['oaio_id'] == "my_id"
+
     def test_object_id_main_ids(self):
         assert 'uid' in object_id('uid', 'did', 'aid', 'sid', {})
         assert 'did' in object_id('uid', 'did', 'aid', 'sid', {})
@@ -14,14 +31,14 @@ class TestHelpers:
         assert 'sid' in object_id('uid', 'did', 'aid', 'sid', {})
 
     def test_object_id_values_name(self):
-        id = 'name_id'
-        values = {NAME_VALUES_KEY: id}
-        assert id in object_id('uid', 'did', 'aid', 'sid', values)
+        name = 'name_id'
+        values = {NAME_VALUES_KEY: name}
+        assert name in object_id('uid', 'did', 'aid', 'sid', values)
 
     def test_object_id_values_root_path(self):
-        id = 'root_path'
-        values = {ROOT_VALUES_KEY: id + "/"}
-        assert id in object_id('uid', 'did', 'aid', 'sid', values)
+        root_path = 'root_path'
+        values = {ROOT_VALUES_KEY: root_path + "/"}
+        assert root_path in object_id('uid', 'did', 'aid', 'sid', values)
 
     def test_stamp_diff_zero(self):
         stamp = now_stamp()
@@ -39,9 +56,9 @@ class TestHelpers:
 
 
 class TestOaiObject:
-    def test_intantiation(self):
-        oai_obj = OaiObject(oaio_id='id', cdn_id='cid', client_stamp='stamp')
+    def test_instantiation(self):
+        oai_obj = OaiObject(oaio_id='id', csh_id='cid', client_stamp='stamp')
         assert oai_obj
         assert oai_obj.oaio_id == 'id'
-        assert oai_obj.cdn_id == 'cid'
+        assert oai_obj.csh_id == 'cid'
         assert oai_obj.client_stamp == 'stamp'
