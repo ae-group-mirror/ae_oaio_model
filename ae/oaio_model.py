@@ -5,12 +5,12 @@ import dataclasses
 import datetime
 
 from dataclasses import dataclass, field
-from typing import Any, Mapping, Optional, Sequence
+from typing import Any, MutableMapping, Optional, Sequence
 
-from ae.base import NOW_STR_FORMAT, now_str, uri2filename                                           # type: ignore
+from ae.base import NOW_STR_FORMAT, now_str, defuse                                             # type: ignore
 
 
-__version__ = '0.3.3'
+__version__ = '0.3.4'
 
 
 CREATE_WRITE_ACCESS = 'c'           #: create, delete and update rights, see write_access field in Pubz and Userz
@@ -39,7 +39,10 @@ HTTP_HEADER_APP_ID = 'X-OAIO-app'   #: app id
 HTTP_HEADER_DVC_ID = 'X-OAIO-dvc'   #: device id
 
 MAX_STAMP_DIFF = 69.0               #: maximum accepted UTC time difference in seconds between client and server
-STAMP_FORMAT = NOW_STR_FORMAT.format(sep="")     #: stamp format string
+OLDEST_SYNC_STAMP = '20221231111111012345'      #: oldest complete stamp ("" is even older)
+STAMP_FORMAT = NOW_STR_FORMAT.format(sep="")    #: stamp format string
+
+
 now_stamp = now_str                 #: function alias used to create a new oaio stamp
 
 
@@ -79,7 +82,7 @@ class OaiObject:
     app_id: OaioAppIdType = ''
 
 
-OaioMapType = Mapping[OaioIdType, OaiObject]
+OaioMapType = MutableMapping[OaioIdType, OaiObject]
 
 
 # *************************  helpers  ************************************************************
@@ -132,7 +135,7 @@ def object_id(user_name: OaioUserIdType, device_id: OaioDeviceIdType, app_id: Oa
 
     obj_url += '/' + stamp
 
-    return uri2filename(obj_url)
+    return defuse(obj_url)
 
 
 def stamp_diff(stamp1: OaioStampType, stamp2: OaioStampType) -> float:
