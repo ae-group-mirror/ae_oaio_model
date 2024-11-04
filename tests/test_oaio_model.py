@@ -4,7 +4,8 @@
 import datetime
 
 from ae.oaio_model import (                             # type: ignore
-    HTTP_HEADER_APP_ID, HTTP_HEADER_DVC_ID, HTTP_HEADER_USR_ID, NAME_VALUES_KEY, ROOT_VALUES_KEY, STAMP_FORMAT,
+    HTTP_HEADER_APP_ID, HTTP_HEADER_DVC_ID, HTTP_HEADER_USR_ID, NAME_VALUES_KEY,
+    OLDEST_SYNC_STAMP, ROOT_VALUES_KEY, STAMP_FORMAT,
     OaiObject, extra_headers, now_stamp, object_dict, object_id, stamp_diff)
 
 
@@ -53,6 +54,11 @@ class TestHelpers:
         s2 = d2.strftime(STAMP_FORMAT)
         assert stamp_diff(s1, s2) == datetime.timedelta(seconds=12, microseconds=36).total_seconds()
         assert stamp_diff(s1, s2) == 12.000036
+
+    def test_stamp_oldest_and_defaults(self):
+        assert OLDEST_SYNC_STAMP < now_stamp()
+        assert "" < OLDEST_SYNC_STAMP           # "" is default for OaiObject.client_stamp and .server_stamp fields
+        assert "" < now_stamp()
 
 
 class TestOaiObject:
