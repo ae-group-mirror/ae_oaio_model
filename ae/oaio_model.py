@@ -10,7 +10,7 @@ from typing import Any, MutableMapping, Optional, Sequence
 from ae.base import NOW_STR_FORMAT, now_str, defuse                                             # type: ignore
 
 
-__version__ = '0.3.4'
+__version__ = '0.3.5'
 
 
 CREATE_WRITE_ACCESS = 'c'           #: create, delete and update rights, see write_access field in Pubz and Userz
@@ -67,19 +67,19 @@ class OaiObject:
     """ oaio data types and structures """
     oaio_id: OaioIdType
 
-    client_stamp: OaioStampType = ''
-    server_stamp: OaioStampType = ''
+    client_stamp: OaioStampType = ''                                #: timestamp of register or newest upload
+    server_stamp: OaioStampType = ''                                #: timestamp of previous version
 
-    client_values: OaioValuesType = field(default_factory=dict)
-    server_values: OaioValuesType = field(default_factory=dict)
+    client_values: OaioValuesType = field(default_factory=dict)     #: actual object values
+    server_values: OaioValuesType = field(default_factory=dict)     #: previous object values (for debugging/monitoring)
 
-    csh_id: Optional[OaioCshIdType] = None
-    csh_write_access: OaioCshWriteAccessType = ''
+    csh_id: Optional[OaioCshIdType] = None                          #: cloud storage host id (for attached file/folders)
+    csh_write_access: OaioCshWriteAccessType = ''                   #: write access rights
 
     # optional fields used in synchronization to store updated server values from other user/device/app
-    username: OaioUserIdType = ''
-    device_id: OaioDeviceIdType = ''
-    app_id: OaioAppIdType = ''
+    username: OaioUserIdType = ''                                   #: name of the actual user
+    device_id: OaioDeviceIdType = ''                                #: id of the actual device
+    app_id: OaioAppIdType = ''                                      #: id of the actual application
 
 
 OaioMapType = MutableMapping[OaioIdType, OaiObject]
@@ -124,14 +124,19 @@ def object_id(user_name: OaioUserIdType, device_id: OaioDeviceIdType, app_id: Oa
     :param stamp:               timestamp when the object got registered.
     :param values:              values of the object.
     :return:                    oai object id (can be used as file name on most OS).
+    :raises:                    AssertationError if one of the following arguments is empty:
+                                :paramref:`object_id.user_name`, :paramref:`object_id.device_id`,
+                                :paramref:`object_id.app_id` or :paramref:`object_id.stamp`.
     """
-    # obj_url = f'{app_id}:://{user_name}@{device_id}'
-    obj_url = f'{app_id}-{user_name}@{device_id}'
+    assert user_name and device_id and app_id and stamp, f"empty usr={user_name} dvc={device_id} app={app_id} s={stamp}"
+    obj_url = f'{app_id}://{user_name}@{device_id}'
 
     if NAME_VALUES_KEY in values:
         obj_url += '/' + values[NAME_VALUES_KEY]
     elif ROOT_VALUES_KEY in values:
-        obj_url += '/' + values[ROOT_VALUES_KEY][:-1]   # remove trailing path separator character
+        obj_url += '/' + values[ROOT_VALUES_KEY].strip('/')     # remove leading/trailing path separator character
+    elif len(values.get(FILES_VALUES_KEY, [])) == 1:
+        obj_url += '/' + values[FILES_VALUES_KEY][0]
 
     obj_url += '/' + stamp
 
