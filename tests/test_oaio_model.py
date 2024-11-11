@@ -3,9 +3,10 @@
 """
 import datetime
 
+from ae.base import defuse
 from ae.oaio_model import (                             # type: ignore
     HTTP_HEADER_APP_ID, HTTP_HEADER_DVC_ID, HTTP_HEADER_USR_ID, NAME_VALUES_KEY,
-    OLDEST_SYNC_STAMP, ROOT_VALUES_KEY, STAMP_FORMAT,
+    OLDEST_SYNC_STAMP, FILES_VALUES_KEY, ROOT_VALUES_KEY, STAMP_FORMAT,
     OaiObject, extra_headers, now_stamp, object_dict, object_id, stamp_diff)
 
 
@@ -36,10 +37,30 @@ class TestHelpers:
         values = {NAME_VALUES_KEY: name}
         assert name in object_id('uid', 'did', 'aid', 'sid', values)
 
+    def test_object_id_values_name_with_defused_char(self):
+        name = 'test name of the object'
+        values = {NAME_VALUES_KEY: name}
+        assert defuse(name) in object_id('uid', 'did', 'aid', 'sid', values)
+
     def test_object_id_values_root_path(self):
         root_path = 'root_path'
         values = {ROOT_VALUES_KEY: root_path + "/"}
         assert root_path in object_id('uid', 'did', 'aid', 'sid', values)
+
+    def test_object_id_values_single_file_name(self):
+        file_name = 'file_one.xyz'
+
+        values = {FILES_VALUES_KEY: [file_name]}
+        assert defuse(file_name) in object_id('uid', 'did', 'aid', 'sid', values)
+
+        values = {FILES_VALUES_KEY: [file_name, 'anyOtherFile.name']}
+        assert file_name not in object_id('uid', 'did', 'aid', 'sid', values)
+
+    def test_object_id_values_single_file_name_with_defused_char(self):
+        file_name = 'file one{with_var}.xyz'
+
+        values = {FILES_VALUES_KEY: [file_name]}
+        assert defuse(file_name) in object_id('uid', 'did', 'aid', 'sid', values)
 
     def test_stamp_diff_zero(self):
         stamp = now_stamp()
