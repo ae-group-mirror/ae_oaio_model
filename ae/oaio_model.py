@@ -10,7 +10,7 @@ from typing import Any, MutableMapping, Optional, Sequence
 from ae.base import NOW_STR_FORMAT, now_str, defuse                                             # type: ignore
 
 
-__version__ = '0.3.5'
+__version__ = '0.3.6'
 
 
 CREATE_WRITE_ACCESS = 'c'           #: create, delete and update rights, see write_access field in Pubz and Userz
@@ -124,7 +124,7 @@ def object_id(user_name: OaioUserIdType, device_id: OaioDeviceIdType, app_id: Oa
     :param stamp:               timestamp when the object got registered.
     :param values:              values of the object.
     :return:                    oai object id (can be used as file name on most OS).
-    :raises:                    AssertationError if one of the following arguments is empty:
+    :raises:                    AssertionError if one of the following arguments is empty:
                                 :paramref:`object_id.user_name`, :paramref:`object_id.device_id`,
                                 :paramref:`object_id.app_id` or :paramref:`object_id.stamp`.
     """
