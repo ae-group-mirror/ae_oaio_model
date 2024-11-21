@@ -10,19 +10,20 @@ from typing import Any, MutableMapping, Optional, Sequence
 from ae.base import NOW_STR_FORMAT, now_str, defuse                                             # type: ignore
 
 
-__version__ = '0.3.6'
+__version__ = '0.3.7'
 
 
-CREATE_WRITE_ACCESS = 'c'           #: create, delete and update rights, see write_access field in Pubz and Userz
-DELETE_WRITE_ACCESS = 'd'           #: delete and update rights
-UPDATE_WRITE_ACCESS = 'u'           #: only update rights
-READ_ONLY_ACCESS = ''
-ACCESS_RIGHTS = (CREATE_WRITE_ACCESS, DELETE_WRITE_ACCESS, UPDATE_WRITE_ACCESS, READ_ONLY_ACCESS)   #: all access rights
+CREATE_ACCESS_RIGHT = 'c'           #: create, delete and update rights, see access_right field in Pubz and Userz
+DELETE_ACCESS_RIGHT = 'd'           #: delete and update rights
+READ_ACCESS_RIGHT = 'r'             #: read-only access
+UPDATE_ACCESS_RIGHT = 'u'           #: only update rights
+ACCESS_RIGHTS = (CREATE_ACCESS_RIGHT, DELETE_ACCESS_RIGHT, READ_ACCESS_RIGHT, UPDATE_ACCESS_RIGHT)  #: all access rights
+NO_ACCESS_RIGHT = ''                #: no or not yet granted access right
 
 DELETE_ACTION = 'delete'            #: object got deleted, not used in Logz.action field (records get deleted instead)
 DOWNLOAD_ACTION = 'download'        #: object got downloaded/synced
-UPLOAD_ACTION = 'upload'            #: object got uploaded/updated
 REGISTER_ACTION = 'register'        #: oaio got registered
+UPLOAD_ACTION = 'upload'            #: object got uploaded/updated
 LOG_DB_ACTIONS = (REGISTER_ACTION, UPLOAD_ACTION, DOWNLOAD_ACTION)  #: see Logz.action field
 LOG_ACTIONS = LOG_DB_ACTIONS + (DELETE_ACTION, )
 UPDATE_ACTIONS = (REGISTER_ACTION, UPLOAD_ACTION)
@@ -52,7 +53,7 @@ OaioDictType = dict[str, Any]       #: type of oai object converted into a dicti
 OaioIdType = str                    #: oai object id
 OaioAppIdType = str                 #: app id
 OaioCshIdType = str                 #: cloud storage host id
-OaioCshWriteAccessType = str        #: write access rights (:attr:`oaio_server.oapi.models.Pubz.write_access`)
+OaioAccessRightType = str           #: oaio access rights (:attr:`oaio_server.oapi.models.Pubz.access_right`)
 OaioDeviceIdType = str              #: device id
 OaioRootPathType = str              #: default root path (containing :data:`~ae.paths.PATH_PLACEHOLDERS`)
 OaioStampType = str                 #: oaio stamp
@@ -74,12 +75,10 @@ class OaiObject:
     server_values: OaioValuesType = field(default_factory=dict)     #: previous object values (for debugging/monitoring)
 
     csh_id: Optional[OaioCshIdType] = None                          #: cloud storage host id (for attached file/folders)
-    csh_write_access: OaioCshWriteAccessType = ''                   #: write access rights
-
-    # optional fields used in synchronization to store updated server values from other user/device/app
     username: OaioUserIdType = ''                                   #: name of the actual user
     device_id: OaioDeviceIdType = ''                                #: id of the actual device
     app_id: OaioAppIdType = ''                                      #: id of the actual application
+    csh_access_right: OaioAccessRightType = ''                      #: csh+values access right of the actual user
 
 
 OaioMapType = MutableMapping[OaioIdType, OaiObject]
