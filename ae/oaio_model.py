@@ -10,7 +10,7 @@ from typing import Any, MutableMapping, Optional, Sequence
 from ae.base import NOW_STR_FORMAT, now_str, defuse                                             # type: ignore
 
 
-__version__ = '0.3.8'
+__version__ = '0.3.9'
 
 
 # oaio access right values, also used to sort the username lists (to place the oaio creator in the first list item)
@@ -18,10 +18,10 @@ CREATE_ACCESS_RIGHT = 'C'           #: create, delete and update rights, see acc
 DELETE_ACCESS_RIGHT = 'D'           #: delete and update rights
 UPDATE_ACCESS_RIGHT = 'U'           #: only update rights
 READ_ACCESS_RIGHT = 'r'             #: read-only access
-NO_ACCESS_RIGHT = ''                #: no or not yet granted access right (not valid for Pubz.access_right)
+NO_ACCESS_RIGHT = 'x'               #: no or not yet granted access right (not valid for Pubz.access_right)
 ACCESS_RIGHTS = (CREATE_ACCESS_RIGHT, DELETE_ACCESS_RIGHT, READ_ACCESS_RIGHT, UPDATE_ACCESS_RIGHT)
 """ access rights (stored in Pubz.access_right db column). also i18n-ready with the
-translation text prefix "Access Right " in the loc/*/Msg*.txt files provided by :mod:`ae.gui_help` """
+translation text prefix "access_right_" in the optional loc/*/Msg*.txt files provided by :mod:`ae.i18n` """
 
 DELETE_ACTION = 'delete'            #: object got deleted, not used in Logz.action field (records get deleted instead)
 DOWNLOAD_ACTION = 'download'        #: object got downloaded/synced
