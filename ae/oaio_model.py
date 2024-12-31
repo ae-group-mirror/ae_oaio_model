@@ -10,7 +10,7 @@ from typing import Any, MutableMapping, Optional, Sequence
 from ae.base import NOW_STR_FORMAT, now_str, defuse                                             # type: ignore
 
 
-__version__ = '0.3.9'
+__version__ = '0.3.10'
 
 
 # oaio access right values, also used to sort the username lists (to place the oaio creator in the first list item)
@@ -20,8 +20,9 @@ UPDATE_ACCESS_RIGHT = 'U'           #: only update rights
 READ_ACCESS_RIGHT = 'r'             #: read-only access
 NO_ACCESS_RIGHT = 'x'               #: no or not yet granted access right (not valid for Pubz.access_right)
 ACCESS_RIGHTS = (CREATE_ACCESS_RIGHT, DELETE_ACCESS_RIGHT, READ_ACCESS_RIGHT, UPDATE_ACCESS_RIGHT)
-""" access rights (stored in Pubz.access_right db column). also i18n-ready with the
-translation text prefix "access_right_" in the optional loc/*/Msg*.txt files provided by :mod:`ae.i18n` """
+""" access rights (stored in the access_right db column of the Pubz table). access right names and their translations
+are provided, using the text prefix 'access_right' followed by an underscore and the access right character, in the
+optional loc/*/Msg*.txt files provided by the :mod:`ae.i18n` portion """
 
 DELETE_ACTION = 'delete'            #: object got deleted, not used in Logz.action field (records get deleted instead)
 DOWNLOAD_ACTION = 'download'        #: object got downloaded/synced
@@ -130,7 +131,7 @@ def object_id(user_name: OaioUserIdType, device_id: OaioDeviceIdType, app_id: Oa
                                 :paramref:`object_id.user_name`, :paramref:`object_id.device_id`,
                                 :paramref:`object_id.app_id` or :paramref:`object_id.stamp`.
     """
-    assert user_name and device_id and app_id and stamp, f"empty usr={user_name} dvc={device_id} app={app_id} s={stamp}"
+    assert user_name and device_id and app_id and stamp, f"empty {user_name=} {device_id=} {app_id=} {stamp=}"
     obj_url = f'{app_id}://{user_name}@{device_id}'
 
     if NAME_VALUES_KEY in values:
