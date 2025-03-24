@@ -2,23 +2,48 @@
 
 """
 import datetime
+import pytest
 
 from ae.base import defuse
 from ae.oaio_model import (                             # type: ignore
     HTTP_HEADER_APP_ID, HTTP_HEADER_DVC_ID, HTTP_HEADER_USR_ID, NAME_VALUES_KEY,
     OLDEST_SYNC_STAMP, FILES_VALUES_KEY, ROOT_VALUES_KEY, STAMP_FORMAT,
-    OaiObject, extra_headers, now_stamp, object_dict, object_id, stamp_diff)
+    extra_headers, header_values, now_stamp, object_dict, object_id, stamp_diff,
+    OaiObject)
 
 
 class TestHelpers:
     def test_extra_headers(self):
-        hdr = extra_headers('u_nam', 'device_i', 'id_of_app')
+        hdr = extra_headers('u\\Ñäm', 'device␣i', 'id_of-app')
+        assert len(hdr) == 3
         assert HTTP_HEADER_USR_ID in hdr
-        assert hdr[HTTP_HEADER_USR_ID] == 'u_nam'
+        assert hdr[HTTP_HEADER_USR_ID] == "b'u\\\\\\xc3\\x91\\xc3\\xa4m'"
         assert HTTP_HEADER_DVC_ID in hdr
-        assert hdr[HTTP_HEADER_DVC_ID] == 'device_i'
+        assert hdr[HTTP_HEADER_DVC_ID] == "b'device\\xe2\\x90\\xa3i'"
         assert HTTP_HEADER_APP_ID in hdr
-        assert hdr[HTTP_HEADER_APP_ID] == 'id_of_app'
+        assert hdr[HTTP_HEADER_APP_ID] == "b'id_of-app'"
+
+    def test_extra_headers_errors(self):
+        with pytest.raises(AttributeError):
+            # noinspection PyTypeChecker
+            extra_headers(1, 2, 3)
+
+        with pytest.raises(TypeError):
+            # noinspection PyArgumentList
+            extra_headers()
+
+    def test_header_values(self):
+        hdr = extra_headers('u\\Ñäm', 'device␣i', 'id_of-app')
+        hdr['any_other_header_field'] = "any other field val"
+        assert header_values(hdr) == ('u\\Ñäm', 'device␣i', 'id_of-app')
+
+    def test_header_values_errors(self):
+        with pytest.raises(TypeError):
+            # noinspection PyArgumentList
+            header_values()
+
+        with pytest.raises(KeyError):
+            header_values({})
 
     def test_object_dict(self):
         oai_obj = OaiObject("my_id")
