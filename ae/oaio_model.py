@@ -4,13 +4,14 @@
 import dataclasses
 import datetime
 
+from ast import literal_eval
 from dataclasses import dataclass, field
 from typing import Any, MutableMapping, Optional, Sequence
 
 from ae.base import NOW_STR_FORMAT, now_str, defuse                                             # type: ignore
 
 
-__version__ = '0.3.10'
+__version__ = '0.3.11'
 
 
 # oaio access right values, also used to sort the username lists (to place the oaio creator in the first list item)
@@ -92,18 +93,29 @@ OaioMapType = MutableMapping[OaioIdType, OaiObject]
 
 
 def extra_headers(user_name: OaioUserIdType, device_id: OaioDeviceIdType, app_id: OaioAppIdType = '') -> dict[str, str]:
-    """ add extra headers into the returned dictionary (used e.g. in Client(headers=...)
+    """ encode user/device/app ids as ASCII/latin1 byte literals as extra http header fields and return them as dict.
 
-    :param user_name:
-    :param device_id:
-    :param app_id:
-    :return:
+    :param user_name:           id of the user.
+    :param device_id:           id of the client device.
+    :param app_id:              id of the app.
+    :return:                    dictionary with http header field names and values (any Unicode character in a value
+                                will be encoded as ASCII characters to its UTF8-byte-value-literals).
     """
     return {
-        HTTP_HEADER_USR_ID: user_name,
-        HTTP_HEADER_DVC_ID: device_id,
-        HTTP_HEADER_APP_ID: app_id,
+        HTTP_HEADER_USR_ID: repr(user_name.encode()),
+        HTTP_HEADER_DVC_ID: repr(device_id.encode()),
+        HTTP_HEADER_APP_ID: repr(app_id.encode()),
         }
+
+
+def header_values(header: dict[str, str]) -> tuple[OaioUserIdType, OaioDeviceIdType, OaioAppIdType]:
+    """ decode and return user/device/app ids from request/session http headers.
+
+    :param header:              http header fields and values.
+    :return:                    tuple with the decoded user/device/app ids.
+    """
+    # noinspection PyTypeChecker
+    return tuple(literal_eval(header[_]).decode() for _ in (HTTP_HEADER_USR_ID, HTTP_HEADER_DVC_ID, HTTP_HEADER_APP_ID))
 
 
 def object_dict(oai_obj: OaiObject) -> OaioDictType:
