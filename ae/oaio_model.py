@@ -6,12 +6,12 @@ import datetime
 
 from ast import literal_eval
 from dataclasses import dataclass, field
-from typing import Any, MutableMapping, Optional, Sequence
+from typing import Any, Mapping, MutableMapping, Optional, Sequence
 
 from ae.base import NOW_STR_FORMAT, now_str, defuse                                             # type: ignore
 
 
-__version__ = '0.3.11'
+__version__ = '0.3.12'
 
 
 # oaio access right values, also used to sort the username lists (to place the oaio creator in the first list item)
@@ -53,19 +53,19 @@ now_stamp = now_str                 #: function alias used to create a new oaio 
 
 
 ActionType = str                    #: register/upload/download... action type
-OaioDictType = dict[str, Any]       #: type of oai object converted into a dictionary
 
-OaioIdType = str                    #: oai object id
+OaioAccessRightType = str           #: oaio access rights (:attr:`oaio_server.oapi.models.Pubz.access_right`)
 OaioAppIdType = str                 #: app id
 OaioCshIdType = str                 #: cloud storage host id
-OaioAccessRightType = str           #: oaio access rights (:attr:`oaio_server.oapi.models.Pubz.access_right`)
+OaioCtxType = Mapping[str, str]     #: dict-like mapping keeping the oaio-specific http header field names and values
 OaioDeviceIdType = str              #: device id
+OaioDictType = dict[str, Any]       #: type of oai object converted into a dictionary
+OaioFilesType = Sequence[str]       #: item type of the :data:`FILES_VALUES_KEY` within :attr:`OaiObject.client_values`
+OaioIdType = str                    #: oai object id
 OaioRootPathType = str              #: default root path (containing :data:`~ae.paths.PATH_PLACEHOLDERS`)
 OaioStampType = str                 #: oaio stamp
 OaioUserIdType = str                #: Userz.Uid/auth.User.username
 OaioValuesType = dict[str, Any]     #: oaio client_values and server_values
-
-OaioFilesType = Sequence[str]       #: item type of the :data:`FILES_VALUES_KEY` within :attr:`OaiObject.client_values`
 
 
 @dataclass
@@ -92,14 +92,14 @@ OaioMapType = MutableMapping[OaioIdType, OaiObject]
 # *************************  helpers  ************************************************************
 
 
-def extra_headers(user_name: OaioUserIdType, device_id: OaioDeviceIdType, app_id: OaioAppIdType = '') -> dict[str, str]:
-    """ encode user/device/app ids as ASCII/latin1 byte literals as extra http header fields and return them as dict.
+def context_encode(user_name: OaioUserIdType, device_id: OaioDeviceIdType, app_id: OaioAppIdType = '') -> OaioCtxType:
+    """ encode the extra http header context fields with user/device/app ids as ASCII/latin1 byte literals.
 
     :param user_name:           id of the user.
     :param device_id:           id of the client device.
     :param app_id:              id of the app.
-    :return:                    dictionary with http header field names and values (any Unicode character in a value
-                                will be encoded as ASCII characters to its UTF8-byte-value-literals).
+    :return:                    mapping with http header context field names/values (each of them with Unicode chars
+                                will be encoded as UTF8-byte-value-literal using only ASCII/latin-1 characters).
     """
     return {
         HTTP_HEADER_USR_ID: repr(user_name.encode()),
@@ -108,10 +108,11 @@ def extra_headers(user_name: OaioUserIdType, device_id: OaioDeviceIdType, app_id
         }
 
 
-def header_values(header: dict[str, str]) -> tuple[OaioUserIdType, OaioDeviceIdType, OaioAppIdType]:
-    """ decode and return user/device/app ids from request/session http headers.
+def context_decode(header: OaioCtxType) -> tuple[OaioUserIdType, OaioDeviceIdType, OaioAppIdType]:
+    """ decode and return the request/session http header context fields containing user/device/app ids.
 
-    :param header:              http header fields and values.
+    :param header:              mapping with http header fields and values, having at least the extra context fields
+                                with the user/device/app ids.
     :return:                    tuple with the decoded user/device/app ids.
     """
     # noinspection PyTypeChecker
