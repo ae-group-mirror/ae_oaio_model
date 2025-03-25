@@ -8,13 +8,13 @@ from ae.base import defuse
 from ae.oaio_model import (                             # type: ignore
     HTTP_HEADER_APP_ID, HTTP_HEADER_DVC_ID, HTTP_HEADER_USR_ID, NAME_VALUES_KEY,
     OLDEST_SYNC_STAMP, FILES_VALUES_KEY, ROOT_VALUES_KEY, STAMP_FORMAT,
-    extra_headers, header_values, now_stamp, object_dict, object_id, stamp_diff,
+    context_encode, context_decode, now_stamp, object_dict, object_id, stamp_diff,
     OaiObject)
 
 
 class TestHelpers:
-    def test_extra_headers(self):
-        hdr = extra_headers('u\\Ñäm', 'device␣i', 'id_of-app')
+    def test_context_encode(self):
+        hdr = context_encode('u\\Ñäm', 'device␣i', 'id_of-app')
         assert len(hdr) == 3
         assert HTTP_HEADER_USR_ID in hdr
         assert hdr[HTTP_HEADER_USR_ID] == "b'u\\\\\\xc3\\x91\\xc3\\xa4m'"
@@ -23,27 +23,29 @@ class TestHelpers:
         assert HTTP_HEADER_APP_ID in hdr
         assert hdr[HTTP_HEADER_APP_ID] == "b'id_of-app'"
 
-    def test_extra_headers_errors(self):
+    def test_context_encode_errors(self):
         with pytest.raises(AttributeError):
             # noinspection PyTypeChecker
-            extra_headers(1, 2, 3)
+            context_encode(1, 2, 3)
 
         with pytest.raises(TypeError):
             # noinspection PyArgumentList
-            extra_headers()
+            context_encode()
 
-    def test_header_values(self):
-        hdr = extra_headers('u\\Ñäm', 'device␣i', 'id_of-app')
-        hdr['any_other_header_field'] = "any other field val"
-        assert header_values(hdr) == ('u\\Ñäm', 'device␣i', 'id_of-app')
+    def test_context_decode(self):
+        hdr = {'any_other_header_field': "any other field val"}
+        ctx_field_values = ('u\\Ñäm', 'device␣i', 'id_of-app')
+        hdr.update(context_encode(*ctx_field_values))
 
-    def test_header_values_errors(self):
+        assert context_decode(hdr) == ctx_field_values
+
+    def test_context_decode_errors(self):
         with pytest.raises(TypeError):
             # noinspection PyArgumentList
-            header_values()
+            context_decode()
 
         with pytest.raises(KeyError):
-            header_values({})
+            context_decode({})
 
     def test_object_dict(self):
         oai_obj = OaiObject("my_id")
