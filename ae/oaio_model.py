@@ -4,14 +4,13 @@
 import dataclasses
 import datetime
 
-from ast import literal_eval
 from dataclasses import dataclass, field
 from typing import Any, Mapping, MutableMapping, Optional, Sequence
 
-from ae.base import NOW_STR_FORMAT, now_str, defuse                                             # type: ignore
+from ae.base import NOW_STR_FORMAT, ascii_str, now_str, defuse, str_ascii       # type: ignore
 
 
-__version__ = '0.3.12'
+__version__ = '0.3.13'
 
 
 # oaio access right values, also used to sort the username lists (to place the oaio creator in the first list item)
@@ -69,9 +68,9 @@ OaioValuesType = dict[str, Any]     #: oaio client_values and server_values
 
 
 @dataclass
-class OaiObject:
+class OaiObject:                                                    # pylint: disable=too-many-instance-attributes
     """ oaio data types and structures """
-    oaio_id: OaioIdType
+    oaio_id: OaioIdType                                             #: object id string (created by :func:`object_id`)
 
     client_stamp: OaioStampType = ''                                #: timestamp of register or newest upload
     server_stamp: OaioStampType = ''                                #: timestamp of previous version
@@ -92,6 +91,17 @@ OaioMapType = MutableMapping[OaioIdType, OaiObject]
 # *************************  helpers  ************************************************************
 
 
+def context_decode(header: OaioCtxType) -> tuple[OaioUserIdType, OaioDeviceIdType, OaioAppIdType]:
+    """ decode and return the request/session http header context fields containing user/device/app ids.
+
+    :param header:              mapping with http header fields and values, having at least the extra context fields
+                                with the user/device/app ids.
+    :return:                    tuple with the decoded user/device/app ids.
+    """
+    # noinspection PyTypeChecker
+    return tuple(str_ascii(header[_]) for _ in (HTTP_HEADER_USR_ID, HTTP_HEADER_DVC_ID, HTTP_HEADER_APP_ID))
+
+
 def context_encode(user_name: OaioUserIdType, device_id: OaioDeviceIdType, app_id: OaioAppIdType = '') -> OaioCtxType:
     """ encode the extra http header context fields with user/device/app ids as ASCII/latin1 byte literals.
 
@@ -102,21 +112,10 @@ def context_encode(user_name: OaioUserIdType, device_id: OaioDeviceIdType, app_i
                                 will be encoded as UTF8-byte-value-literal using only ASCII/latin-1 characters).
     """
     return {
-        HTTP_HEADER_USR_ID: repr(user_name.encode()),
-        HTTP_HEADER_DVC_ID: repr(device_id.encode()),
-        HTTP_HEADER_APP_ID: repr(app_id.encode()),
+        HTTP_HEADER_USR_ID: ascii_str(user_name),
+        HTTP_HEADER_DVC_ID: ascii_str(device_id),
+        HTTP_HEADER_APP_ID: ascii_str(app_id),
         }
-
-
-def context_decode(header: OaioCtxType) -> tuple[OaioUserIdType, OaioDeviceIdType, OaioAppIdType]:
-    """ decode and return the request/session http header context fields containing user/device/app ids.
-
-    :param header:              mapping with http header fields and values, having at least the extra context fields
-                                with the user/device/app ids.
-    :return:                    tuple with the decoded user/device/app ids.
-    """
-    # noinspection PyTypeChecker
-    return tuple(literal_eval(header[_]).decode() for _ in (HTTP_HEADER_USR_ID, HTTP_HEADER_DVC_ID, HTTP_HEADER_APP_ID))
 
 
 def object_dict(oai_obj: OaiObject) -> OaioDictType:
@@ -139,7 +138,7 @@ def object_id(user_name: OaioUserIdType, device_id: OaioDeviceIdType, app_id: Oa
     :param app_id:              id of the registering application.
     :param stamp:               timestamp when the object got registered.
     :param values:              values of the object.
-    :return:                    oai object id (can be used as file name on most OS).
+    :return:                    oai object id converted by :func:`~ae.base.defuse` to be usable as filename on most OS.
     :raises:                    AssertionError if one of the following arguments is empty:
                                 :paramref:`object_id.user_name`, :paramref:`object_id.device_id`,
                                 :paramref:`object_id.app_id` or :paramref:`object_id.stamp`.
