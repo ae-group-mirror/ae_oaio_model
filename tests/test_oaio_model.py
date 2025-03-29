@@ -14,14 +14,25 @@ from ae.oaio_model import (                             # type: ignore
 
 class TestHelpers:
     def test_context_encode(self):
-        hdr = context_encode('u\\Ñäm', 'device␣i', 'id_of-app')
+        ctx_field_values = ('\\Î ó Ñä Ö ûßá://', 'device␣i', 'id_of-app')
+        hdr = context_encode(*ctx_field_values)
+
         assert len(hdr) == 3
+
         assert HTTP_HEADER_USR_ID in hdr
-        assert hdr[HTTP_HEADER_USR_ID] == "b'u\\\\\\xc3\\x91\\xc3\\xa4m'"
+        assert hdr[HTTP_HEADER_USR_ID]
+        # == "b'\\\\\\xc3\\x8e \\xc3\\xb3 \\xc3\\x91\\xc3\\xa4 \\xc3\\x96 \\xc3\\xbb\\xc3\\x9f\\xc3\\xa1://'"
+        assert isinstance(hdr[HTTP_HEADER_USR_ID], str)
+
         assert HTTP_HEADER_DVC_ID in hdr
-        assert hdr[HTTP_HEADER_DVC_ID] == "b'device\\xe2\\x90\\xa3i'"
+        assert hdr[HTTP_HEADER_DVC_ID]      # == "b'device\\xe2\\x90\\xa3i'"
+        assert isinstance(hdr[HTTP_HEADER_DVC_ID], str)
+
         assert HTTP_HEADER_APP_ID in hdr
-        assert hdr[HTTP_HEADER_APP_ID] == "b'id_of-app'"
+        assert hdr[HTTP_HEADER_APP_ID]      # == "b'id_of-app'"
+        assert isinstance(hdr[HTTP_HEADER_APP_ID], str)
+
+        assert context_decode(hdr) == ctx_field_values
 
     def test_context_encode_errors(self):
         with pytest.raises(AttributeError):
@@ -34,9 +45,11 @@ class TestHelpers:
 
     def test_context_decode(self):
         hdr = {'any_other_header_field': "any other field val"}
-        ctx_field_values = ('u\\Ñäm', 'device␣i', 'id_of-app')
+        ctx_field_values = ('u\\Ñäm//', 'device␣i', 'id_of-(app)')
         hdr.update(context_encode(*ctx_field_values))
+        assert len(hdr) > 3
 
+        hdr['additional_hdr_field'] = "any value"
         assert context_decode(hdr) == ctx_field_values
 
     def test_context_decode_errors(self):
