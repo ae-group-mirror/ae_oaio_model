@@ -1,16 +1,16 @@
-<!-- THIS FILE IS EXCLUSIVELY MAINTAINED by the project ae.ae V0.3.95 -->
-<!-- THIS FILE IS EXCLUSIVELY MAINTAINED by the project aedev.tpl_namespace_root V0.3.14 -->
-# oaio_model 0.3.13
+<!-- THIS FILE IS EXCLUSIVELY MAINTAINED by the project ae.ae v0.3.103 -->
+<!-- THIS FILE IS EXCLUSIVELY MAINTAINED by the project aedev.namespace_root_tpls v0.3.22 -->
+# oaio_model 0.3.14
 
 [![GitLab develop](https://img.shields.io/gitlab/pipeline/ae-group/ae_oaio_model/develop?logo=python)](
     https://gitlab.com/ae-group/ae_oaio_model)
 [![LatestPyPIrelease](
-    https://img.shields.io/gitlab/pipeline/ae-group/ae_oaio_model/release0.3.12?logo=python)](
-    https://gitlab.com/ae-group/ae_oaio_model/-/tree/release0.3.12)
+    https://img.shields.io/gitlab/pipeline/ae-group/ae_oaio_model/release0.3.14?logo=python)](
+    https://gitlab.com/ae-group/ae_oaio_model/-/tree/release0.3.14)
 [![PyPIVersions](https://img.shields.io/pypi/v/ae_oaio_model)](
     https://pypi.org/project/ae-oaio-model/#history)
 
->ae_oaio_model module 0.3.13.
+>ae namespace module portion oaio_model: Our Asynchronously Interchangeable Objects Data Structures.
 
 [![Coverage](https://ae-group.gitlab.io/ae_oaio_model/coverage.svg)](
     https://ae-group.gitlab.io/ae_oaio_model/coverage/index.html)
@@ -54,7 +54,7 @@ following command in the root folder of this repository
 (ae_oaio_model):
 
 ```shell script
-pip install -e .[dev]
+pip install --editable .[dev]
 ```
 
 the last command will install this module portion, along with the tools you need
