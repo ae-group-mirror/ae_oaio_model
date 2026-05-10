@@ -7,10 +7,10 @@ import datetime
 from dataclasses import dataclass, field
 from typing import Any, Mapping, MutableMapping, Optional, Sequence
 
-from ae.base import NOW_STR_FORMAT, ascii_str, now_str, defuse, str_ascii       # type: ignore
+from ae.base import NOW_STR_FORMAT, ascii_dec_str, ascii_enc_lit, defuse, now_str       # type: ignore
 
 
-__version__ = '0.3.13'
+__version__ = '0.3.14'
 
 
 # oaio access right values, also used to sort the username lists (to place the oaio creator in the first list item)
@@ -99,7 +99,7 @@ def context_decode(header: OaioCtxType) -> tuple[OaioUserIdType, OaioDeviceIdTyp
     :return:                    tuple with the decoded user/device/app ids.
     """
     # noinspection PyTypeChecker
-    return tuple(str_ascii(header[_]) for _ in (HTTP_HEADER_USR_ID, HTTP_HEADER_DVC_ID, HTTP_HEADER_APP_ID))
+    return tuple(ascii_dec_str(header[_]) for _ in (HTTP_HEADER_USR_ID, HTTP_HEADER_DVC_ID, HTTP_HEADER_APP_ID))
 
 
 def context_encode(user_name: OaioUserIdType, device_id: OaioDeviceIdType, app_id: OaioAppIdType = '') -> OaioCtxType:
@@ -112,9 +112,9 @@ def context_encode(user_name: OaioUserIdType, device_id: OaioDeviceIdType, app_i
                                 will be encoded as UTF8-byte-value-literal using only ASCII/latin-1 characters).
     """
     return {
-        HTTP_HEADER_USR_ID: ascii_str(user_name),
-        HTTP_HEADER_DVC_ID: ascii_str(device_id),
-        HTTP_HEADER_APP_ID: ascii_str(app_id),
+        HTTP_HEADER_USR_ID: ascii_enc_lit(user_name),
+        HTTP_HEADER_DVC_ID: ascii_enc_lit(device_id),
+        HTTP_HEADER_APP_ID: ascii_enc_lit(app_id),
         }
 
 
