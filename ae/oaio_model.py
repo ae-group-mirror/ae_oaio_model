@@ -10,7 +10,7 @@ from typing import Any, Mapping, MutableMapping, Optional, Sequence
 from ae.base import NOW_STR_FORMAT, ascii_dec_str, ascii_enc_lit, defuse, now_str       # type: ignore
 
 
-__version__ = '0.3.14'
+__version__ = '0.3.15'
 
 
 # oaio access right values, also used to sort the username lists (to place the oaio creator in the first list item)
@@ -147,13 +147,13 @@ def object_id(user_name: OaioUserIdType, device_id: OaioDeviceIdType, app_id: Oa
     obj_url = f'{app_id}://{user_name}@{device_id}'
 
     if NAME_VALUES_KEY in values:
-        obj_url += '/' + values[NAME_VALUES_KEY]
+        obj_url += "/" + values[NAME_VALUES_KEY]
     elif ROOT_VALUES_KEY in values:
-        obj_url += '/' + values[ROOT_VALUES_KEY].strip('/')     # remove leading/trailing path separator character
+        obj_url += "/" + values[ROOT_VALUES_KEY].strip("/")     # remove leading/trailing path separator character
     elif len(values.get(FILES_VALUES_KEY, [])) == 1:
-        obj_url += '/' + values[FILES_VALUES_KEY][0]
+        obj_url += "/" + values[FILES_VALUES_KEY][0]
 
-    obj_url += '/' + stamp
+    obj_url += "/" + stamp
 
     return defuse(obj_url)
 
