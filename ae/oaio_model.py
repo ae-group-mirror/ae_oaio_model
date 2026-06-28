@@ -4,13 +4,14 @@
 import dataclasses
 import datetime
 
+from collections.abc import Mapping, MutableMapping, Sequence
 from dataclasses import dataclass, field
-from typing import Any, Mapping, MutableMapping, Optional, Sequence
+from typing import Any
 
 from ae.base import NOW_STR_FORMAT, ascii_dec_str, ascii_enc_lit, defuse, now_str       # type: ignore
 
 
-__version__ = '0.3.15'
+__version__ = '0.3.16'
 
 
 # oaio access right values, also used to sort the username lists (to place the oaio creator in the first list item)
@@ -39,7 +40,7 @@ FILES_VALUES_KEY = '_file_paths'    #: oaio values key of paths list of optional
 OBJECTS_DIR = 'objz'                #: name of folder to store infos of oai objects not yet synced with server
 FILES_DIR = 'filez'                 #: name of folder to store file names attached to an oaio
 
-HTTP_HEADER_USR_ID = 'X-OAIO-user'  #: user name
+HTTP_HEADER_USR_ID = 'X-OAIO-user'  #: username
 HTTP_HEADER_APP_ID = 'X-OAIO-app'   #: app id
 HTTP_HEADER_DVC_ID = 'X-OAIO-dvc'   #: device id
 
@@ -78,7 +79,7 @@ class OaiObject:                                                    # pylint: di
     client_values: OaioValuesType = field(default_factory=dict)     #: actual object values
     server_values: OaioValuesType = field(default_factory=dict)     #: previous object values (for debugging/monitoring)
 
-    csh_id: Optional[OaioCshIdType] = None                          #: cloud storage host id (for attached file/folders)
+    csh_id: OaioCshIdType | None = None                             #: cloud storage host id (for attached file/folders)
     username: OaioUserIdType = ''                                   #: name of the actual user
     device_id: OaioDeviceIdType = ''                                #: id of the actual device
     app_id: OaioAppIdType = ''                                      #: id of the actual application
